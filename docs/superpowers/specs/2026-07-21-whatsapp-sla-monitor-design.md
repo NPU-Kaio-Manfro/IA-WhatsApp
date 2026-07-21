@@ -48,6 +48,8 @@ qualquer ação automatizada visível ao WhatsApp além de leitura de eventos.
 - **`index.js`** — ponto de entrada: inicializa DB, WhatsApp client e cron;
   trata erros de nível superior (`auth_failure`, `disconnected`,
   `unhandledRejection`).
+- **`src/logger.js`** — registra erros em arquivo (`logs/errors.log`), com
+  timestamp ISO e código do erro; usado pelos demais módulos.
 
 **Fluxo de dados:** eventos do WhatsApp → `db.js` (SQLite) ← lido pelo
 `scheduler.js` (cron diário) → `mailer.js` (e-mail).
@@ -116,6 +118,15 @@ a mesma tabela.
 - Erros de escrita/leitura no SQLite são logados e não interrompem o listener.
 - Erro de envio de e-mail (SMTP) é logado; não derruba o cron (tenta de novo no
   próximo ciclo agendado).
+- **Log em arquivo**: todo erro tratado (WhatsApp, SQLite, SMTP) é também
+  registrado em `logs/errors.log` (`.env`: `ERROR_LOG_PATH`, padrão
+  `./logs/errors.log`), uma linha por erro, formato
+  `[<ISO timestamp>] [<código>] <mensagem>` — ex:
+  `[2026-07-21T09:00:03.000Z] [SMTP_SEND_FAILED] Connection timeout`.
+  Códigos usados: `WHATSAPP_AUTH_FAILURE`, `WHATSAPP_DISCONNECTED`,
+  `DB_WRITE_ERROR`, `DB_READ_ERROR`, `SMTP_SEND_FAILED`. Um módulo
+  **`src/logger.js`** centraliza essa escrita (append, cria o diretório/arquivo
+  se não existir) para os demais módulos chamarem.
 
 ## Configuração (`.env`)
 
@@ -124,6 +135,7 @@ a mesma tabela.
 - `CRON_SCHEDULE` (padrão `0 9 * * *`)
 - `SLA_THRESHOLDS` (padrão `3,5,15` — dias que definem o início de cada faixa)
 - `DB_PATH` (padrão `./data/contacts.db`)
+- `ERROR_LOG_PATH` (padrão `./logs/errors.log`)
 
 ## Fora de escopo (não incluído nesta versão)
 
