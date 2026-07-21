@@ -108,3 +108,26 @@ test('buildReportHtml escapes HTML in contact names and chat IDs to prevent inje
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
   assert.match(html, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/script&gt;|&lt;script&gt;alert\("xss"\)&lt;\/script&gt;/);
 });
+
+test('buildReportHtml escapes double and single quotes in contact names', () => {
+  const ranges = [
+    {
+      label: '3-4 dias',
+      min: 3,
+      max: 4,
+      contacts: [
+        {
+          chatId: 'a@c.us',
+          contactName: `Say "hi" it's me`,
+          isGroup: false,
+          days: 3,
+        },
+      ],
+    },
+  ];
+
+  const html = buildReportHtml(ranges);
+
+  assert.doesNotMatch(html, /Say "hi" it's me/);
+  assert.match(html, /Say &quot;hi&quot; it&#39;s me/);
+});
