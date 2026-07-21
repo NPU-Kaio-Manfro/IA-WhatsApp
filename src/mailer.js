@@ -51,7 +51,7 @@ async function sendReport(smtpConfig, bucketedRanges, errorLogPath, transportFac
   try {
     const transporter = transportFactory(smtpConfig.transport);
     await transporter.sendMail({
-      from: smtpConfig.transport.auth?.user,
+      from: smtpConfig.from,
       to: smtpConfig.to,
       subject: 'Relatório de SLA de Atendimento — WhatsApp',
       html,

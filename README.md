@@ -14,7 +14,16 @@ diário com clientes (DM ou grupo) que estão há 3+, 5+ ou 15+ dias sem respost
    ```bash
    cp .env.example .env
    ```
-   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`: credenciais do serviço de e-mail (para Gmail, use uma "senha de app", não a senha normal da conta).
+   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`: credenciais do serviço de e-mail.
+     - **Com Resend (recomendado, mais simples)**: crie uma conta grátis em resend.com,
+       gere uma API key em *API Keys → Create API Key*. Use `SMTP_HOST=smtp.resend.com`,
+       `SMTP_USER=resend` (literal, não é seu e-mail), `SMTP_PASS=<sua API key>`.
+     - **Com Gmail**: use uma "senha de app" (não a senha normal da conta) — gere em
+       myaccount.google.com/apppasswords.
+   - `EMAIL_FROM`: remetente do e-mail (precisa ser um endereço válido). Com Resend e
+     sem domínio verificado, use `onboarding@resend.dev` (funciona para testes, envia
+     para qualquer destinatário). Se não definido, cai para `SMTP_USER` — o que só
+     funciona se `SMTP_USER` já for um e-mail válido (ex: Gmail), não com Resend.
    - `EMAIL_TO`: quem recebe o relatório.
    - `CRON_SCHEDULE`: quando rodar a verificação (formato cron; padrão `0 9 * * *` = todo dia às 09:00).
    - `SLA_THRESHOLDS`: dias que iniciam cada faixa de alerta (padrão `3,5,15`).

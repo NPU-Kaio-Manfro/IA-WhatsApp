@@ -25,6 +25,7 @@ const smtpConfig = {
     },
   },
   to: process.env.EMAIL_TO,
+  from: process.env.EMAIL_FROM || process.env.SMTP_USER,
 };
 
 const db = initDb(DB_PATH, ERROR_LOG_PATH);
