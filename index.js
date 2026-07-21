@@ -55,19 +55,23 @@ client.on('message', async (msg) => {
   try {
     const chat = await msg.getChat();
     const contact = await msg.getContact();
-    handleIncomingMessage(
-      {
-        chatId: chat.id._serialized,
-        isGroup: chat.isGroup,
-        fromMe: msg.fromMe,
-        contact: { name: contact.name, pushname: contact.pushname, number: contact.number },
-        groupName: chat.isGroup ? chat.name : undefined,
-      },
-      db,
-      new Date().toISOString(),
-    );
+    try {
+      handleIncomingMessage(
+        {
+          chatId: chat.id._serialized,
+          isGroup: chat.isGroup,
+          fromMe: msg.fromMe,
+          contact: { name: contact.name, pushname: contact.pushname, number: contact.number },
+          groupName: chat.isGroup ? chat.name : undefined,
+        },
+        db,
+        new Date().toISOString(),
+      );
+    } catch (err) {
+      logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
+    }
   } catch (err) {
-    logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
+    logError(ERROR_LOG_PATH, 'WHATSAPP_MESSAGE_ERROR', err.message);
   }
 });
 
@@ -75,13 +79,17 @@ client.on('message_create', async (msg) => {
   if (!msg.fromMe) return;
   try {
     const chat = await msg.getChat();
-    handleOutgoingMessage(
-      { chatId: chat.id._serialized, fromMe: msg.fromMe },
-      db,
-      new Date().toISOString(),
-    );
+    try {
+      handleOutgoingMessage(
+        { chatId: chat.id._serialized, fromMe: msg.fromMe },
+        db,
+        new Date().toISOString(),
+      );
+    } catch (err) {
+      logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
+    }
   } catch (err) {
-    logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
+    logError(ERROR_LOG_PATH, 'WHATSAPP_MESSAGE_ERROR', err.message);
   }
 });
 
