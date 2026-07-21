@@ -27,3 +27,14 @@ test('logError appends multiple lines without overwriting', () => {
   assert.match(lines[0], /\[SMTP_SEND_FAILED\] timeout$/);
   assert.match(lines[1], /\[DB_READ_ERROR\] locked$/);
 });
+
+test('logError does not throw when the filesystem write fails', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'logger-test-'));
+  // Create a plain file where a directory segment is expected, forcing
+  // mkdirSync (and thus appendFileSync) to fail with ENOTDIR.
+  const blockerFile = path.join(dir, 'not-a-directory');
+  fs.writeFileSync(blockerFile, '');
+  const logPath = path.join(blockerFile, 'nested', 'errors.log');
+
+  assert.doesNotThrow(() => logError(logPath, 'DB_WRITE_ERROR', 'disk full'));
+});
