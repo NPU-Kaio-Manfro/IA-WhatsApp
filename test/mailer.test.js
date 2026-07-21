@@ -80,3 +80,31 @@ test('sendReport logs SMTP_SEND_FAILED and returns false when the transport reje
   const logContent = fs.readFileSync(errorLogPath, 'utf8');
   assert.match(logContent, /\[SMTP_SEND_FAILED\] connection timeout/);
 });
+
+test('buildReportHtml escapes HTML in contact names and chat IDs to prevent injection', () => {
+  const ranges = [
+    {
+      label: 'Test <script>alert("xss")</script>',
+      min: 1,
+      max: 2,
+      contacts: [
+        {
+          chatId: '5511999999999@c.us<img src=x onerror=alert(1)>',
+          contactName: '<img src=x onerror=alert(1)>',
+          isGroup: false,
+          days: 1,
+        },
+      ],
+    },
+  ];
+
+  const html = buildReportHtml(ranges);
+
+  // Verify that raw HTML tags are escaped (not present as-is)
+  assert.doesNotMatch(html, /<img src=x onerror=alert\(1\)>/);
+  assert.doesNotMatch(html, /<script>alert/);
+
+  // Verify that escaped forms are present in the output
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.match(html, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/script&gt;|&lt;script&gt;alert\("xss"\)&lt;\/script&gt;/);
+});
