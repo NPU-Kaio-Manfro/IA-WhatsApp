@@ -11,6 +11,13 @@ test('parseThresholds sorts and converts to integers', () => {
   assert.deepEqual(parseThresholds('15,3,5'), [3, 5, 15]);
 });
 
+test('parseThresholds throws on non-numeric or non-positive entries', () => {
+  assert.throws(() => parseThresholds('abc,5,3'), /Invalid SLA_THRESHOLDS/);
+  assert.throws(() => parseThresholds('3,,5'), /Invalid SLA_THRESHOLDS/);
+  assert.throws(() => parseThresholds('3,0,5'), /Invalid SLA_THRESHOLDS/);
+  assert.throws(() => parseThresholds('3,-5,5'), /Invalid SLA_THRESHOLDS/);
+});
+
 test('buildRanges creates half-open ranges with the last one unbounded', () => {
   assert.deepEqual(buildRanges([3, 5, 15]), [
     { label: '3-4 dias', min: 3, max: 4 },

@@ -6,10 +6,15 @@ function daysPending(lastClientMsgAtIso, nowIso) {
 }
 
 function parseThresholds(thresholdsCsv) {
-  return thresholdsCsv
-    .split(',')
-    .map((s) => parseInt(s.trim(), 10))
-    .sort((a, b) => a - b);
+  const values = thresholdsCsv.split(',').map((s) => parseInt(s.trim(), 10));
+
+  if (values.some((n) => !Number.isInteger(n) || n <= 0)) {
+    throw new Error(
+      `Invalid SLA_THRESHOLDS value: "${thresholdsCsv}" contains a non-numeric or non-positive entry`,
+    );
+  }
+
+  return values.sort((a, b) => a - b);
 }
 
 function buildRanges(thresholds) {
