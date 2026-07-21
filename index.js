@@ -65,7 +65,7 @@ client.on('message', async (msg) => {
           groupName: chat.isGroup ? chat.name : undefined,
         },
         db,
-        new Date().toISOString(),
+        new Date(msg.timestamp * 1000).toISOString(),
       );
     } catch (err) {
       logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
@@ -83,7 +83,7 @@ client.on('message_create', async (msg) => {
       handleOutgoingMessage(
         { chatId: chat.id._serialized, fromMe: msg.fromMe },
         db,
-        new Date().toISOString(),
+        new Date(msg.timestamp * 1000).toISOString(),
       );
     } catch (err) {
       logError(ERROR_LOG_PATH, 'DB_WRITE_ERROR', err.message);
